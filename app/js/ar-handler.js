@@ -6,13 +6,9 @@ class ARHandler {
   }
 
   static isSupported() {
-    const userAgent = navigator.userAgent;
-    const isSafari = /Safari/.test(userAgent) && !/Chrome/.test(userAgent);
-    const isChrome = /Chrome/.test(userAgent) && /Google Inc/.test(navigator.vendor);
-
     return 'mediaDevices' in navigator &&
       'getUserMedia' in navigator.mediaDevices &&
-      (isSafari || isChrome);
+      /Safari|Chrome/.test(navigator.userAgent);
   }
 
   async initialize() {

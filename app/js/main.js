@@ -30,11 +30,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 開始ボタンのイベントリスナー
   startButton.addEventListener('click', async () => {
+    console.log('Start button clicked');
     try {
       // ローディング表示
       startButton.disabled = true;
       loadingIndicator.classList.remove('hidden');
       errorMessage.classList.add('hidden');
+      console.log('Loading indicator shown');
 
       // AR初期化
       await arHandler.initialize();
@@ -42,11 +44,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // 画面切り替え
       startupScreen.classList.add('hidden');
       arScreen.classList.remove('hidden');
+      console.log('Screen switched to AR');
 
       // AR開始
       await arHandler.start();
     } catch (error) {
       showError(`ARの起動に失敗しました: ${error.message}`);
+      console.log('Error occurred:', error.message);
       startButton.disabled = false;
       loadingIndicator.classList.add('hidden');
     }

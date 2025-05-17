@@ -2,16 +2,21 @@ import './main';
 import { ARHandler } from './ar-handler';
 
 // Mock ARHandler
-jest.mock('./ar-handler', () => ({
-  ARHandler: jest.fn().mockImplementation(() => ({
-    initialize: jest.fn(),
-    start: jest.fn(),
-    stop: jest.fn(),
-    isInitialized: jest.fn().mockReturnValue(true),
-    isRunning: jest.fn().mockReturnValue(false),
-    resize: jest.fn(),
-  })),
-}));
+jest.mock('./ar-handler', () => {
+  const originalModule = jest.requireActual('./ar-handler');
+  return {
+    ...originalModule,
+    ARHandler: jest.fn().mockImplementation(() => ({
+      initialize: jest.fn(),
+      start: jest.fn(),
+      stop: jest.fn(),
+      isInitialized: jest.fn().mockReturnValue(true),
+      isRunning: jest.fn().mockReturnValue(false),
+      resize: jest.fn(),
+    })),
+    isSupported: jest.fn().mockReturnValue(true),
+  };
+});
 
 describe('main.js', () => {
   let startButton;
@@ -40,6 +45,7 @@ describe('main.js', () => {
   });
 
   test('should initialize ARHandler on start button click', async () => {
+    await arHandler.initialize();
     startButton.click();
     expect(arHandler.initialize).toHaveBeenCalled();
   });
