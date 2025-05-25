@@ -1,4 +1,5 @@
-import { ARHandler } from './ar-handler.js';
+import ARHandler from './ar-handler.js';
+import '../css/style.css';
 
 document.addEventListener('DOMContentLoaded', () => {
   // 要素の取得

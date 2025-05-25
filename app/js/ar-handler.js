@@ -25,6 +25,8 @@ class ARHandler {
         uiScanning: "#scanning-overlay",
         uiError: "#error-overlay",
       });
+      console.log(this.mindarThree);
+
 
       // Three.jsのセットアップ
       const { renderer, scene, camera } = this.mindarThree;
