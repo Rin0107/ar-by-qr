@@ -4,17 +4,20 @@ import { ARHandler } from './ar-handler';
 // Mock ARHandler
 jest.mock('./ar-handler', () => {
   const originalModule = jest.requireActual('./ar-handler');
+  const ARHandler = jest.fn().mockImplementation(() => ({
+    initialize: jest.fn(),
+    start: jest.fn(),
+    stop: jest.fn(),
+    isInitialized: jest.fn().mockReturnValue(true),
+    isRunning: jest.fn().mockReturnValue(false),
+    resize: jest.fn(),
+    isSupported: jest.fn().mockReturnValue(true),
+  }));
+  ARHandler.isSupported = jest.fn().mockReturnValue(true);
+
   return {
     ...originalModule,
-    ARHandler: jest.fn().mockImplementation(() => ({
-      initialize: jest.fn(),
-      start: jest.fn(),
-      stop: jest.fn(),
-      isInitialized: jest.fn().mockReturnValue(true),
-      isRunning: jest.fn().mockReturnValue(false),
-      resize: jest.fn(),
-    })),
-    isSupported: jest.fn().mockReturnValue(true),
+    ARHandler,
   };
 });
 
@@ -28,20 +31,27 @@ describe('main.js', () => {
 
   beforeEach(() => {
     document.body.innerHTML = `
-      <div id="startup-screen">
-        <button id="start-button">開始する</button>
-        <div id="loading" class="hidden">読み込み中...</div>
-        <div id="error-message" class="hidden"></div>
-      </div>
-      <div id="ar-screen" class="hidden"></div>
-    `;
+    <div id="startup-screen">
+      <button id="start-button">開始する</button>
+      <div id="loading" class="hidden">読み込み中...</div>
+      <div id="error-message" class="hidden"></div>
+    </div>
+    <div id="ar-screen" class="hidden"></div>
+    <div id="scanning-overlay" class="hidden"></div>
+    <div id="ar-container"></div>
+  `;
+    document.dispatchEvent(new Event('DOMContentLoaded'));
 
+    // 要素の取得（main.js によってイベントがバインドされたあとで）
     startButton = document.getElementById('start-button');
     loadingIndicator = document.getElementById('loading');
     errorMessage = document.getElementById('error-message');
     startupScreen = document.getElementById('startup-screen');
     arScreen = document.getElementById('ar-screen');
+
+    // モックされた ARHandler のインスタンス化
     arHandler = new ARHandler();
+
   });
 
   test('should initialize ARHandler on start button click', async () => {

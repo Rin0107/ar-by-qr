@@ -42,7 +42,6 @@ test('should instantiate correctly', () => {
 
 test('should check browser support', () => {
   const originalUserAgent = navigator.userAgent;
-  console.log('Original userAgent:', originalUserAgent);
   const mockUserAgent = (userAgent) => {
     Object.defineProperty(window.navigator, 'userAgent', {
       value: userAgent,

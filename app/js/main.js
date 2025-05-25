@@ -1,3 +1,5 @@
+import { ARHandler } from './ar-handler.js';
+
 document.addEventListener('DOMContentLoaded', () => {
   // 要素の取得
   const startupScreen = document.getElementById('startup-screen');
