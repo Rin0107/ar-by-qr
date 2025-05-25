@@ -74,14 +74,26 @@ test('should stop AR session', () => {
 });
 
 test('should handle resize', () => {
+  const mockCamera = { aspect: 0, updateProjectionMatrix: jest.fn() };
+  const mockRenderer = { setSize: jest.fn() };
+  arHandler.config.camera = mockCamera;
+  arHandler.config.renderer = mockRenderer;
+
   arHandler.resize();
-  // Add assertions for resize behavior
+
+  expect(mockCamera.aspect).toBe(window.innerWidth / window.innerHeight);
+  expect(mockCamera.updateProjectionMatrix).toHaveBeenCalled();
+  expect(mockRenderer.setSize).toHaveBeenCalledWith(window.innerWidth, window.innerHeight);
 });
 
-test('should handle fade-in animation', () => {
+test('should handle fade-in animation', (done) => {
   const material = { opacity: 0 };
   arHandler.fadeIn(material, 500);
-  // Add assertions for fade-in behavior
+
+  setTimeout(() => {
+    expect(material.opacity).toBeCloseTo(1, 1);
+    done();
+  }, 600);
 });
 
 test('should handle errors', async () => {

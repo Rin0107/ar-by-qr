@@ -27,11 +27,26 @@ class ARHandler {
   }
 
   resize() {
-    // Implement resize logic
+    const { innerWidth, innerHeight } = window;
+    // Assuming camera and renderer are part of the config or class properties
+    if (this.config.camera && this.config.renderer) {
+      this.config.camera.aspect = innerWidth / innerHeight;
+      this.config.camera.updateProjectionMatrix();
+      this.config.renderer.setSize(innerWidth, innerHeight);
+    }
   }
 
   fadeIn(material, duration) {
-    // Implement fadeIn logic
+    const start = performance.now();
+    const animate = (time) => {
+      const elapsed = time - start;
+      const progress = Math.min(elapsed / duration, 1);
+      material.opacity = progress;
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    requestAnimationFrame(animate);
   }
 
   isInitialized() {

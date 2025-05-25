@@ -46,7 +46,7 @@ describe('main.js', () => {
     startupScreen = document.getElementById('startup-screen');
     arScreen = document.getElementById('ar-screen');
 
-    // モックされた ARHandler のインスタンス化
+    // // モックされた ARHandler のインスタンス化
     // arHandler = new ARHandler();
 
   });
