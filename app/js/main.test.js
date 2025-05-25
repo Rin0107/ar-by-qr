@@ -55,19 +55,17 @@ describe('main.js', () => {
   });
 
   test('should initialize ARHandler on start button click', async () => {
-    await arHandler.initialize();
-    startButton.click();
+    await startButton.click();
     expect(arHandler.initialize).toHaveBeenCalled();
   });
 
   test('should show loading indicator on start button click', async () => {
-    startButton.click();
+    await startButton.click();
     expect(loadingIndicator.classList.contains('hidden')).toBe(false);
   });
 
   test('should hide startup screen and show AR screen on successful start', async () => {
-    await arHandler.initialize();
-    await arHandler.start();
+    await startButton.click();
     expect(startupScreen.classList.contains('hidden')).toBe(true);
     expect(arScreen.classList.contains('hidden')).toBe(false);
   });
@@ -78,8 +76,9 @@ describe('main.js', () => {
     });
 
     try {
-      await arHandler.start();
+      await startButton.click();
     } catch (error) {
+      expect(arHandler.initialize).toHaveBeenCalled();
       expect(errorMessage.classList.contains('hidden')).toBe(false);
       expect(errorMessage.textContent).toContain('ARの起動に失敗しました');
     }
@@ -87,6 +86,8 @@ describe('main.js', () => {
 
   test('should disable start button if browser is not supported', () => {
     ARHandler.isSupported.mockReturnValueOnce(false);
+    // DOMContentLoaded イベントを再発火して、main.js の初期化をトリガー
+    document.dispatchEvent(new Event('DOMContentLoaded'));
     expect(startButton.disabled).toBe(true);
   });
 });
