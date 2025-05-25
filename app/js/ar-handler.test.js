@@ -22,7 +22,6 @@ beforeAll(() => {
   });
 });
 
-let arHandler;
 const config = {
   container: document.createElement('div'),
   imageFile: 'assets/images/display.png',
@@ -32,23 +31,35 @@ const config = {
   onError: jest.fn(),
 };
 
-beforeEach(() => {
-  arHandler = new ARHandler(config);
-});
+let arHandler = new ARHandler(config);
 
-test('should instantiate correctly', () => {
-  expect(arHandler).toBeInstanceOf(ARHandler);
-});
-
-test('should check browser support', () => {
-  const originalUserAgent = navigator.userAgent;
-  const mockUserAgent = (userAgent) => {
-    Object.defineProperty(window.navigator, 'userAgent', {
-      value: userAgent,
-      configurable: true,
-    });
+jest.mock('three', () => {
+  const originalThree = jest.requireActual('three');
+  return {
+    ...originalThree,
+    TextureLoader: jest.fn().mockImplementation(() => ({
+      loadAsync: jest.fn().mockResolvedValue({
+        image: {
+          width: 1024,
+          height: 1024,
+          src: 'mock-image-src',
+        },
+      }),
+    })),
   };
+});
 
+
+test('should correctly handle user agent support', () => {
+  function mockUserAgent(userAgent) {
+    const userAgentProp = {
+      get: () => userAgent,
+      configurable: true,
+    };
+    Object.defineProperty(window.navigator, 'userAgent', userAgentProp);
+  }
+
+  const originalUserAgent = window.navigator.userAgent;
   mockUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
   expect(ARHandler.isSupported()).toBe(true);
 
@@ -60,6 +71,8 @@ test('should check browser support', () => {
 test('should initialize correctly', async () => {
   await arHandler.initialize();
   expect(arHandler.isInitialized()).toBe(true);
+  expect(arHandler.mindarThree).toBeDefined();
+  expect(arHandler.imageMesh).toBeDefined();
 });
 
 test('should start AR session', async () => {

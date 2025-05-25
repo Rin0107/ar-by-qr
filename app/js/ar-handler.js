@@ -1,3 +1,6 @@
+import { MindARThree } from 'mind-ar';
+import * as THREE from 'three';
+
 class ARHandler {
   constructor(config) {
     this.config = config;
@@ -12,7 +15,62 @@ class ARHandler {
   }
 
   async initialize() {
-    this.initialized = true;
+    console.log('ARHandlerの初期化を開始します。');
+    try {
+      // MindARの初期化
+      this.mindarThree = MindARThree({
+        container: this.config.container,
+        imageTargetSrc: this.config.markerFile,
+        uiLoading: "#loading-overlay",
+        uiScanning: "#scanning-overlay",
+        uiError: "#error-overlay",
+      });
+
+      // Three.jsのセットアップ
+      const { renderer, scene, camera } = this.mindarThree;
+
+      // 平面ジオメトリの作成（2D画像表示用）
+      const geometry = new THREE.PlaneGeometry(1, 1);
+
+      // テクスチャのロード
+      const texture = await new THREE.TextureLoader().loadAsync(this.config.imageFile);
+      console.log('途中経過', texture);
+
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0
+      });
+
+      // メッシュの作成
+      this.imageMesh = new THREE.Mesh(geometry, material);
+
+      // アンカーの設定
+      const anchor = this.mindarThree.addAnchor(0);
+      anchor.group.add(this.imageMesh);
+
+      // マーカー検出イベント
+      anchor.onTargetFound = () => {
+        // フェードインアニメーション
+        this.fadeIn(this.imageMesh.material, 500);
+        if (this.config.onMarkerFound) this.config.onMarkerFound();
+      };
+
+      anchor.onTargetLost = () => {
+        // 透明度リセット
+        this.imageMesh.material.opacity = 0;
+        if (this.config.onMarkerLost) this.config.onMarkerLost();
+      };
+
+      // リサイズハンドラ
+      this.resize();
+
+      this.initialized = true;
+    } catch (error) {
+      console.error('AR初期化エラー:', error);
+      if (this.config.onError) this.config.onError(error);
+      throw error;
+    }
   }
 
   async start() {
